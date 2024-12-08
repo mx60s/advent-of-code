@@ -2,32 +2,36 @@ import sys
 import re
 
 def solve_crossword(crossword):
+    def in_bounds(x, y):
+        return 0 <= x < rows and 0 <= y < cols
+
+    word = 'XMAS'
+
+    def check_direction(x, y, dx, dy):
+        for i in range(len(word)):
+            nx, ny = x + i * dx, y + i * dy
+            if not in_bounds(nx, ny) or crossword[nx][ny] != word[i]:
+                return False
+        return True
+
     rows, cols = len(crossword), len(crossword[0])
+    directions = [
+        (0, 1),  # Right
+        (1, 0),  # Down
+        (1, 1),  # Diagonal Down-Right
+        (1, -1), # Diagonal Down-Left
+        (0, -1), # Left
+        (-1, 0), # Up
+        (-1, -1),# Diagonal Up-Left
+        (-1, 1)  # Diagonal Up-Right
+    ]
 
-    horizontal = ["".join(row) for row in crossword]
-    vertical = ["".join(crossword[row][col] for row in range(rows)) for col in range(cols)]
-    
-    diag_down_right = []
-    diag_up_right = []
-    diag_down_left = []
-    diag_up_right = []
-
-    for d in range(-rows + 1, cols):
-        diag_down_right.append("".join(crossword[r][r - d] for r in range(rows) if 0 <= r - d < cols))
-        diag_up_right.append("".join(crossword[r][d + r] for r in range(rows) if 0 <= d + r < cols))
-
-    diag_down_left = []
-    diag_up_left = []
-
-    for d in range(-rows + 1, cols):
-        diag_down_left.append("".join(crossword[r][cols - 1 - r - d] for r in range(rows) if 0 <= cols - 1 - r - d < cols))
-        diag_up_left.append("".join(crossword[rows - 1 - r][d + r] for r in range(rows) if 0 <= d + r < cols))
-
-    all_lines = horizontal + vertical + diag_down_right + diag_up_right + diag_down_left + diag_up_left
-
-    all_lines += [line[::-1] for line in all_lines]
-
-    count = sum(line.count('XMAS') for line in all_lines)
+    count = 0
+    for x in range(rows):
+        for y in range(cols):
+            for dx, dy in directions:
+                if check_direction(x, y, dx, dy):
+                    count += 1
     return count
 
 if __name__ == "__main__":
