@@ -14,22 +14,26 @@ def print_queue(rules, updates):
     total_count = 0
 
     for update in updates:
-        print(update)
         valid_rules = []
         for leader, follower in rules:
             if leader in update and follower in update:
                 valid_rules.append((leader, follower))
 
-        print(valid_rules)
         update_idxs = {page: i for i, page in enumerate(update)}
-        valid_update = True
-        for leader, follower in valid_rules:
-            if update_idxs[leader] > update_idxs[follower]:
-               valid_update = False
-               break
-
-        if valid_update:
-            print('yes', update)
+        made_change = True
+        invalid_update = False
+        while made_change:
+            made_change = False
+            for leader, follower in valid_rules:
+                if update_idxs[leader] > update_idxs[follower]:
+                    invalid_update = True
+                    made_change = True
+                    l_idx = update_idxs[leader]
+                    f_idx = update_idxs[follower]
+                    update_idxs[leader], update_idxs[follower] = f_idx, l_idx
+                    update[l_idx], update[f_idx] = update[f_idx], update[l_idx]
+                    
+        if invalid_update:
             total_count += update[len(update) // 2]
                 
     return total_count
